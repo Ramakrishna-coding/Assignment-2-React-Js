@@ -10,6 +10,7 @@ class App extends Component {
     password: '',
     showPassword: false,
     searchPasswords: '',
+    isTrue: false,
   }
 
   changeWebsite = event => {
@@ -48,13 +49,16 @@ class App extends Component {
       websiteName: '',
       userName: '',
       password: '',
+      searchPasswords: '',
+      isTrue: true,
     }))
   }
 
   deleteItem = id => {
     const {passwordsList} = this.state
     const filteredList = passwordsList.filter(each => each.id !== id)
-    this.setState({passwordsList: filteredList})
+    const ifCase = filteredList.length !== 0
+    this.setState({passwordsList: filteredList, isTrue: ifCase})
   }
 
   render() {
@@ -66,6 +70,19 @@ class App extends Component {
       showPassword,
       searchPasswords,
     } = this.state
+    let {isTrue} = this.state
+
+    const newList = passwordsList.filter(eachValue =>
+      eachValue.websiteName
+        .toLowerCase()
+        .includes(searchPasswords.toLowerCase()),
+    )
+
+    if (newList.length === 0) {
+      isTrue = false
+    } else {
+      isTrue = true
+    }
 
     return (
       <div className="bg-container">
@@ -145,7 +162,6 @@ class App extends Component {
               <h1 className="passwords-count">Your Passwords</h1>
               <p className="count">{passwordsList.length}</p>
             </div>
-
             <div className="search-passwords">
               <img
                 src="https://assets.ccbp.in/frontend/react-js/password-manager-search-img.png"
@@ -171,7 +187,7 @@ class App extends Component {
             />
             <label htmlFor="checkbox">Show Passwords</label>
           </div>
-          {passwordsList.length === 0 ? (
+          {!isTrue && (
             <div className="no-password-box">
               <img
                 src="https://assets.ccbp.in/frontend/react-js/no-passwords-img.png"
@@ -180,10 +196,11 @@ class App extends Component {
               />
               <p className="no-passwords-text">No Passwords</p>
             </div>
-          ) : (
+          )}
+          {isTrue && (
             <ul className="un-order-list">
-              {passwordsList.map(each => (
-                <li className="list-item">
+              {newList.map(each => (
+                <li key={each.id} className="list-item">
                   <div className="first-letter-box">
                     <p className="first-letter">
                       {each.websiteName.charAt(0).toUpperCase()}
@@ -207,7 +224,7 @@ class App extends Component {
                     type="button"
                     className="delete-button"
                     data-testId="delete"
-                    onClick={this.deleteItem}
+                    onClick={() => this.deleteItem(each.id)}
                   >
                     <img
                       src="https://assets.ccbp.in/frontend/react-js/password-manager-delete-img.png"
